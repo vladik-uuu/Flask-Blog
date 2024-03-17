@@ -1,3 +1,5 @@
+# Файл для конфигурации приложения
+
 import os
 
 class Config(object):
