@@ -7,11 +7,11 @@ from app.forms import LoginForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User
 
+
 # главная страничка
 @app.route('/')
 @app.route('/index')
 def index():
-    user = {'username': 'Mr. Who'}
     posts = [
         {
             'author': {'username': 'John'},
