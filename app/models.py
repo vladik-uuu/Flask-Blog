@@ -8,6 +8,13 @@ from flask_login import UserMixin
 from hashlib import md5
 
 
+# Под-таблица для отношений многие ко многим
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+)
+
+
 # Пользователь
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,6 +26,13 @@ class User(UserMixin, db.Model):
     # Показываем связь один ко многим (указывается от одного)
     # Высокоуровневое представление отношения user и post
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    # Используя followers делаем отношение многие ко многим
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -46,6 +60,7 @@ class Post(db.Model):
         return '<Post {}>'.format(self.body)
 
 
+# Проверка логина
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
